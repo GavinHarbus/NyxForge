@@ -666,53 +666,53 @@ func SumUsedToken(logType int, startTimestamp int64, endTimestamp int64, modelNa
 	return token
 }
 
-func DeleteOldLog(ctx context.Context, targetTimestamp int64, limit int) (int64, error) {
+func CountOldLog(ctx context.Context, targetTimestamp int64) (int64, error) {
+	var total int64
+	if err := LOG_DB.WithContext(ctx).Model(&Log{}).Where("created_at < ?", targetTimestamp).Count(&total).Error; err != nil {
+		return 0, err
+	}
+	return total, nil
+}
+
+func DeleteOldLogBatch(ctx context.Context, targetTimestamp int64, limit int) (int64, error) {
+	if limit <= 0 {
+		limit = 100
+	}
+	if nil != ctx.Err() {
+		return 0, ctx.Err()
+	}
+
 	if common.UsingLogDatabase(common.DatabaseTypeClickHouse) {
-		if limit <= 0 {
-			limit = 100
+		// ClickHouse DELETE is a heavy mutation that rewrites data parts, so
+		// per-batch mutations would be pathologically slow. Remove all matching
+		// rows in a single synchronous mutation regardless of limit; the reported
+		// count lets the caller's progress loop complete in one pass.
+		total, err := CountOldLog(ctx, targetTimestamp)
+		if err != nil {
+			return 0, err
 		}
-
-		var total int64 = 0
-
-		for {
-			if nil != ctx.Err() {
-				return total, ctx.Err()
-			}
-
-			var batchCount int64
-			if err := LOG_DB.WithContext(ctx).Raw(`
-SELECT count() FROM (
-	SELECT created_at, request_id
-	FROM logs
-	WHERE created_at < ?
-	ORDER BY created_at ASC, request_id ASC
-	LIMIT ?
-)`, targetTimestamp, limit).Scan(&batchCount).Error; err != nil {
-				return total, err
-			}
-			if batchCount == 0 {
-				break
-			}
-
-			if err := LOG_DB.WithContext(ctx).Exec(`
-ALTER TABLE logs DELETE WHERE (created_at, request_id) IN (
-	SELECT created_at, request_id
-	FROM logs
-	WHERE created_at < ?
-	ORDER BY created_at ASC, request_id ASC
-	LIMIT ?
-) SETTINGS mutations_sync = 1`, targetTimestamp, limit).Error; err != nil {
-				return total, err
-			}
-
-			total += batchCount
-
-			if batchCount < int64(limit) {
-				break
-			}
+		if total == 0 {
+			return 0, nil
 		}
-
+		if err := LOG_DB.WithContext(ctx).Exec(
+			"ALTER TABLE logs DELETE WHERE created_at < ? SETTINGS mutations_sync = 1",
+			targetTimestamp,
+		).Error; err != nil {
+			return 0, err
+		}
 		return total, nil
+	}
+
+	result := LOG_DB.WithContext(ctx).Where("created_at < ?", targetTimestamp).Limit(limit).Delete(&Log{})
+	if nil != result.Error {
+		return 0, result.Error
+	}
+	return result.RowsAffected, nil
+}
+
+func DeleteOldLog(ctx context.Context, targetTimestamp int64, limit int) (int64, error) {
+	if limit <= 0 {
+		limit = 100
 	}
 
 	var total int64 = 0
@@ -722,14 +722,14 @@ ALTER TABLE logs DELETE WHERE (created_at, request_id) IN (
 			return total, ctx.Err()
 		}
 
-		result := LOG_DB.Where("created_at < ?", targetTimestamp).Limit(limit).Delete(&Log{})
-		if nil != result.Error {
-			return total, result.Error
+		rowsAffected, err := DeleteOldLogBatch(ctx, targetTimestamp, limit)
+		if nil != err {
+			return total, err
 		}
 
-		total += result.RowsAffected
+		total += rowsAffected
 
-		if result.RowsAffected < int64(limit) {
+		if rowsAffected < int64(limit) {
 			break
 		}
 	}
