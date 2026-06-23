@@ -17,8 +17,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useEffect, useState } from 'react';
-import { API, showError } from '../../helpers';
+import React, { useEffect, useMemo, useState } from 'react';
+import { API, showError, resolveLocalizedContent } from '../../helpers';
 import { marked } from 'marked';
 import { Empty } from '@douyinfe/semi-ui';
 import {
@@ -28,25 +28,28 @@ import {
 import { useTranslation } from 'react-i18next';
 
 const About = () => {
-  const { t } = useTranslation();
-  const [about, setAbout] = useState('');
+  const { t, i18n } = useTranslation();
+  const [aboutRaw, setAboutRaw] = useState('');
   const [aboutLoaded, setAboutLoaded] = useState(false);
   const currentYear = new Date().getFullYear();
 
+  const about = useMemo(() => {
+    const resolved = resolveLocalizedContent(aboutRaw, i18n.language);
+    if (!resolved) return '';
+    if (resolved.startsWith('https://')) return resolved;
+    return marked.parse(resolved);
+  }, [aboutRaw, i18n.language]);
+
   const displayAbout = async () => {
-    setAbout(localStorage.getItem('about') || '');
+    setAboutRaw(localStorage.getItem('about') || '');
     const res = await API.get('/api/about');
     const { success, message, data } = res.data;
     if (success) {
-      let aboutContent = data;
-      if (!data.startsWith('https://')) {
-        aboutContent = marked.parse(data);
-      }
-      setAbout(aboutContent);
-      localStorage.setItem('about', aboutContent);
+      setAboutRaw(data);
+      localStorage.setItem('about', data);
     } else {
       showError(message);
-      setAbout(t('加载关于内容失败...'));
+      setAboutRaw(t('加载关于内容失败...'));
     }
     setAboutLoaded(true);
   };

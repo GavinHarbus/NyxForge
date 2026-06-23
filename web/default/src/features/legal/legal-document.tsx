@@ -24,6 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Markdown } from '@/components/ui/markdown'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PublicLayout } from '@/components/layout'
+import { useLocalizedContent } from '@/lib/localized-content'
 import type { LegalDocumentResponse } from './types'
 
 type LegalDocumentProps = {
@@ -59,7 +60,8 @@ export function LegalDocument({
     staleTime: 10 * 60 * 1000,
   })
 
-  const rawContent = data?.data?.trim() ?? ''
+  const localizedContent = useLocalizedContent(data?.data ?? '')
+  const rawContent = localizedContent.trim()
   const hasContent = rawContent.length > 0
   const isUrl = hasContent && isValidUrl(rawContent)
   const isHtml = hasContent && !isUrl && isLikelyHtml(rawContent)

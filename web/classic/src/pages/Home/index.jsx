@@ -17,7 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Typography,
@@ -25,7 +25,13 @@ import {
   ScrollList,
   ScrollItem,
 } from '@douyinfe/semi-ui';
-import { API, showError, copy, showSuccess } from '../../helpers';
+import {
+  API,
+  showError,
+  copy,
+  showSuccess,
+  resolveLocalizedContent,
+} from '../../helpers';
 import { useIsMobile } from '../../hooks/common/useIsMobile';
 import { API_ENDPOINTS } from '../../constants/common.constant';
 import { StatusContext } from '../../context/Status';
@@ -70,7 +76,7 @@ const Home = () => {
   const [statusState] = useContext(StatusContext);
   const actualTheme = useActualTheme();
   const [homePageContentLoaded, setHomePageContentLoaded] = useState(false);
-  const [homePageContent, setHomePageContent] = useState('');
+  const [homePageRaw, setHomePageRaw] = useState('');
   const [noticeVisible, setNoticeVisible] = useState(false);
   const isMobile = useIsMobile();
   const isDemoSiteMode = statusState?.status?.demo_site_enabled || false;
@@ -81,31 +87,23 @@ const Home = () => {
   const [endpointIndex, setEndpointIndex] = useState(0);
   const isChinese = i18n.language.startsWith('zh');
 
+  const homePageContent = useMemo(() => {
+    const resolved = resolveLocalizedContent(homePageRaw, i18n.language);
+    if (!resolved) return '';
+    if (resolved.startsWith('https://')) return resolved;
+    return marked.parse(resolved);
+  }, [homePageRaw, i18n.language]);
+
   const displayHomePageContent = async () => {
-    setHomePageContent(localStorage.getItem('home_page_content') || '');
+    setHomePageRaw(localStorage.getItem('home_page_content') || '');
     const res = await API.get('/api/home_page_content');
     const { success, message, data } = res.data;
     if (success) {
-      let content = data;
-      if (!data.startsWith('https://')) {
-        content = marked.parse(data);
-      }
-      setHomePageContent(content);
-      localStorage.setItem('home_page_content', content);
-
-      // 如果内容是 URL，则发送主题模式
-      if (data.startsWith('https://')) {
-        const iframe = document.querySelector('iframe');
-        if (iframe) {
-          iframe.onload = () => {
-            iframe.contentWindow.postMessage({ themeMode: actualTheme }, '*');
-            iframe.contentWindow.postMessage({ lang: i18n.language }, '*');
-          };
-        }
-      }
+      setHomePageRaw(data);
+      localStorage.setItem('home_page_content', data);
     } else {
       showError(message);
-      setHomePageContent('加载首页内容失败...');
+      setHomePageRaw('加载首页内容失败...');
     }
     setHomePageContentLoaded(true);
   };
@@ -140,6 +138,17 @@ const Home = () => {
   useEffect(() => {
     displayHomePageContent().then();
   }, []);
+
+  // 内容为 URL 时，向 iframe 发送主题模式与语言
+  useEffect(() => {
+    if (!homePageContent.startsWith('https://')) return;
+    const iframe = document.querySelector('iframe');
+    if (!iframe) return;
+    iframe.onload = () => {
+      iframe.contentWindow.postMessage({ themeMode: actualTheme }, '*');
+      iframe.contentWindow.postMessage({ lang: i18n.language }, '*');
+    };
+  }, [homePageContent, actualTheme, i18n.language]);
 
   useEffect(() => {
     const timer = setInterval(() => {

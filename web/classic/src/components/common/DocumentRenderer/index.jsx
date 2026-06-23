@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { API, showError } from '../../../helpers';
+import { API, showError, resolveLocalizedContent } from '../../../helpers';
 import { Empty, Card, Spin, Typography } from '@douyinfe/semi-ui';
 const { Title } = Typography;
 import {
@@ -69,14 +69,20 @@ const sanitizeHtml = (html) => {
  * @param {string} emptyMessage - 空内容时的提示消息
  */
 const DocumentRenderer = ({ apiEndpoint, title, cacheKey, emptyMessage }) => {
-  const { t } = useTranslation();
-  const [content, setContent] = useState('');
+  const { t, i18n } = useTranslation();
+  const [rawContent, setRawContent] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // 根据当前界面语言解析多语言内容
+  const content = useMemo(
+    () => resolveLocalizedContent(rawContent, i18n.language),
+    [rawContent, i18n.language],
+  );
 
   const loadContent = async () => {
     const cachedContent = localStorage.getItem(cacheKey) || '';
     if (cachedContent) {
-      setContent(cachedContent);
+      setRawContent(cachedContent);
       setLoading(false);
     }
 
@@ -84,18 +90,18 @@ const DocumentRenderer = ({ apiEndpoint, title, cacheKey, emptyMessage }) => {
       const res = await API.get(apiEndpoint);
       const { success, message, data } = res.data;
       if (success && data) {
-        setContent(data);
+        setRawContent(data);
         localStorage.setItem(cacheKey, data);
       } else {
         if (!cachedContent) {
           showError(message || emptyMessage);
-          setContent('');
+          setRawContent('');
         }
       }
     } catch (error) {
       if (!cachedContent) {
         showError(emptyMessage);
-        setContent('');
+        setRawContent('');
       }
     } finally {
       setLoading(false);

@@ -19,6 +19,7 @@ For commercial licensing, please contact support@quantumnous.com
 import { useEffect, useState } from 'react'
 import i18next from 'i18next'
 import { toast } from 'sonner'
+import { useLocalizedContent } from '@/lib/localized-content'
 import { getHomePageContent } from '../api'
 import type { HomePageContentResult } from '../types'
 
@@ -26,10 +27,11 @@ const STORAGE_KEY = 'home_page_content'
 
 /**
  * Hook to load and manage custom home page content
- * Supports both Markdown/HTML content and iframe URLs
+ * Supports both Markdown/HTML content and iframe URLs, with per-language
+ * content resolved reactively to the current UI language.
  */
 export function useHomePageContent(): HomePageContentResult {
-  const [content, setContent] = useState<string>('')
+  const [rawContent, setRawContent] = useState<string>('')
   const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
@@ -39,7 +41,7 @@ export function useHomePageContent(): HomePageContentResult {
       // Load from localStorage first for immediate display
       const cached = localStorage.getItem(STORAGE_KEY)
       if (cached && mounted) {
-        setContent(cached)
+        setRawContent(cached)
       }
 
       try {
@@ -49,11 +51,11 @@ export function useHomePageContent(): HomePageContentResult {
         if (!mounted) return
 
         if (success && data) {
-          setContent(data)
+          setRawContent(data)
           localStorage.setItem(STORAGE_KEY, data)
         } else {
           // Clear content if API returns empty
-          setContent('')
+          setRawContent('')
           localStorage.removeItem(STORAGE_KEY)
         }
       } catch (error) {
@@ -74,6 +76,8 @@ export function useHomePageContent(): HomePageContentResult {
       mounted = false
     }
   }, [])
+
+  const content = useLocalizedContent(rawContent)
 
   let isUrl = false
   try {

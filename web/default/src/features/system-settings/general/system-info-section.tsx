@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { LocalizedTextarea } from '../components/localized-textarea'
 import { FormDirtyIndicator } from '../components/form-dirty-indicator'
 import { FormNavigationGuard } from '../components/form-navigation-guard'
 import {
@@ -286,12 +287,13 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
                   <FormItem>
                     <FormLabel>{t('About')}</FormLabel>
                     <FormControl>
-                      <Textarea
+                      <LocalizedTextarea
                         placeholder={t(
                           'Enter HTML code (e.g., <p>About us...</p>) or a URL (e.g., https://example.com) to embed as iframe'
                         )}
                         rows={4}
-                        {...field}
+                        value={field.value ?? ''}
+                        onChange={field.onChange}
                       />
                     </FormControl>
                     <FormDescription>
@@ -312,10 +314,11 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
                     <FormItem>
                       <FormLabel>{t('Home Page Content')}</FormLabel>
                       <FormControl>
-                        <Textarea
+                        <LocalizedTextarea
                           placeholder={t('Welcome to our New API...')}
                           rows={6}
-                          {...field}
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormDescription>
@@ -336,12 +339,13 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
                   <FormItem>
                     <FormLabel>{t('User Agreement')}</FormLabel>
                     <FormControl>
-                      <Textarea
+                      <LocalizedTextarea
                         placeholder={t(
                           'Provide Markdown, HTML, or an external URL for the user agreement'
                         )}
                         rows={6}
-                        {...field}
+                        value={field.value ?? ''}
+                        onChange={field.onChange}
                       />
                     </FormControl>
                     <FormDescription>
@@ -361,12 +365,13 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
                   <FormItem>
                     <FormLabel>{t('Privacy Policy')}</FormLabel>
                     <FormControl>
-                      <Textarea
+                      <LocalizedTextarea
                         placeholder={t(
                           'Provide Markdown, HTML, or an external URL for the privacy policy'
                         )}
                         rows={6}
-                        {...field}
+                        value={field.value ?? ''}
+                        onChange={field.onChange}
                       />
                     </FormControl>
                     <FormDescription>

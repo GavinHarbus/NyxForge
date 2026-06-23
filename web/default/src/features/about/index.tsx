@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next'
 import { Markdown } from '@/components/ui/markdown'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PublicLayout } from '@/components/layout'
+import { useLocalizedContent } from '@/lib/localized-content'
 import { getAboutContent } from './api'
 
 function isValidUrl(value: string) {
@@ -129,7 +130,8 @@ export function About() {
     queryFn: getAboutContent,
   })
 
-  const rawContent = data?.data?.trim() ?? ''
+  const localizedContent = useLocalizedContent(data?.data ?? '')
+  const rawContent = localizedContent.trim()
   const hasContent = rawContent.length > 0
   const isUrl = hasContent && isValidUrl(rawContent)
   const isHtml = hasContent && !isUrl && isLikelyHtml(rawContent)

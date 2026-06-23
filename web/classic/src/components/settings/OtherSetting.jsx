@@ -33,6 +33,7 @@ import { marked } from 'marked';
 import { useTranslation } from 'react-i18next';
 import { StatusContext } from '../../context/Status';
 import Text from '@douyinfe/semi-ui/lib/es/typography/text';
+import LocalizedContentInput from './LocalizedContentInput';
 
 const LEGAL_USER_AGREEMENT_KEY = 'legal.user_agreement';
 const LEGAL_PRIVACY_POLICY_KEY = 'legal.privacy_policy';
@@ -421,15 +422,18 @@ const OtherSetting = () => {
               <Button onClick={submitNotice} loading={loadingInput['Notice']}>
                 {t('设置公告')}
               </Button>
-              <Form.TextArea
+              <LocalizedContentInput
                 label={t('用户协议')}
                 placeholder={t(
                   '在此输入用户协议内容，支持 Markdown & HTML 代码',
                 )}
-                field={LEGAL_USER_AGREEMENT_KEY}
-                onChange={handleInputChange}
-                style={{ fontFamily: 'JetBrains Mono, Consolas' }}
-                autosize={{ minRows: 6, maxRows: 12 }}
+                value={inputs[LEGAL_USER_AGREEMENT_KEY]}
+                onChange={(value) =>
+                  setInputs((prev) => ({
+                    ...prev,
+                    [LEGAL_USER_AGREEMENT_KEY]: value,
+                  }))
+                }
                 helpText={t(
                   '填写用户协议内容后，用户注册时将被要求勾选已阅读用户协议',
                 )}
@@ -440,15 +444,18 @@ const OtherSetting = () => {
               >
                 {t('设置用户协议')}
               </Button>
-              <Form.TextArea
+              <LocalizedContentInput
                 label={t('隐私政策')}
                 placeholder={t(
                   '在此输入隐私政策内容，支持 Markdown & HTML 代码',
                 )}
-                field={LEGAL_PRIVACY_POLICY_KEY}
-                onChange={handleInputChange}
-                style={{ fontFamily: 'JetBrains Mono, Consolas' }}
-                autosize={{ minRows: 6, maxRows: 12 }}
+                value={inputs[LEGAL_PRIVACY_POLICY_KEY]}
+                onChange={(value) =>
+                  setInputs((prev) => ({
+                    ...prev,
+                    [LEGAL_PRIVACY_POLICY_KEY]: value,
+                  }))
+                }
                 helpText={t(
                   '填写隐私政策内容后，用户注册时将被要求勾选已阅读隐私政策',
                 )}
@@ -490,15 +497,15 @@ const OtherSetting = () => {
               <Button onClick={submitLogo} loading={loadingInput['Logo']}>
                 {t('设置 Logo')}
               </Button>
-              <Form.TextArea
+              <LocalizedContentInput
                 label={t('首页内容')}
                 placeholder={t(
                   '在此输入首页内容，支持 Markdown & HTML 代码，设置后首页的状态信息将不再显示。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为首页',
                 )}
-                field={'HomePageContent'}
-                onChange={handleInputChange}
-                style={{ fontFamily: 'JetBrains Mono, Consolas' }}
-                autosize={{ minRows: 6, maxRows: 12 }}
+                value={inputs['HomePageContent']}
+                onChange={(value) =>
+                  setInputs((prev) => ({ ...prev, HomePageContent: value }))
+                }
               />
               <Button
                 onClick={() => submitOption('HomePageContent')}
@@ -506,15 +513,15 @@ const OtherSetting = () => {
               >
                 {t('设置首页内容')}
               </Button>
-              <Form.TextArea
+              <LocalizedContentInput
                 label={t('关于')}
                 placeholder={t(
                   '在此输入新的关于内容，支持 Markdown & HTML 代码。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为关于页面',
                 )}
-                field={'About'}
-                onChange={handleInputChange}
-                style={{ fontFamily: 'JetBrains Mono, Consolas' }}
-                autosize={{ minRows: 6, maxRows: 12 }}
+                value={inputs['About']}
+                onChange={(value) =>
+                  setInputs((prev) => ({ ...prev, About: value }))
+                }
               />
               <Button onClick={submitAbout} loading={loadingInput['About']}>
                 {t('设置关于')}
