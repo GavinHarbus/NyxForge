@@ -10,6 +10,14 @@ const semiUiDir = path.resolve(
   path.dirname(require.resolve('@douyinfe/semi-ui')),
   '../..',
 )
+// Semi UI bundles date-fns-tz@1, which deep-imports date-fns v2 internals such
+// as `date-fns/_lib/cloneObject/index.js`. The default workspace pulls date-fns
+// v4 to the shared root, and v4's `exports` map hides those internal paths,
+// breaking the classic build. Pin date-fns to the v2 copy nested under Semi for
+// this build only (classic never uses date-fns v4).
+const dateFnsV2Dir = path.dirname(
+  require.resolve('date-fns/package.json', { paths: [semiUiDir] }),
+)
 
 export default defineConfig(({ envMode }) => {
   const env = loadEnv({ mode: envMode, prefixes: ['VITE_'] })
@@ -43,6 +51,7 @@ export default defineConfig(({ envMode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        'date-fns': dateFnsV2Dir,
         '@douyinfe/semi-ui/dist/css/semi.css': path.resolve(
           semiUiDir,
           'dist/css/semi.css',
