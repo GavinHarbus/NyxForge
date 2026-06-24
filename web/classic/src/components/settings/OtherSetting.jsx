@@ -37,6 +37,7 @@ import LocalizedContentInput from './LocalizedContentInput';
 
 const LEGAL_USER_AGREEMENT_KEY = 'legal.user_agreement';
 const LEGAL_PRIVACY_POLICY_KEY = 'legal.privacy_policy';
+const LEGAL_REFUND_POLICY_KEY = 'legal.refund_policy';
 
 const OtherSetting = () => {
   const { t } = useTranslation();
@@ -44,6 +45,7 @@ const OtherSetting = () => {
     Notice: '',
     [LEGAL_USER_AGREEMENT_KEY]: '',
     [LEGAL_PRIVACY_POLICY_KEY]: '',
+    [LEGAL_REFUND_POLICY_KEY]: '',
     SystemName: '',
     Logo: '',
     Footer: '',
@@ -77,6 +79,7 @@ const OtherSetting = () => {
     Notice: false,
     [LEGAL_USER_AGREEMENT_KEY]: false,
     [LEGAL_PRIVACY_POLICY_KEY]: false,
+    [LEGAL_REFUND_POLICY_KEY]: false,
     SystemName: false,
     Logo: false,
     HomePageContent: false,
@@ -146,6 +149,28 @@ const OtherSetting = () => {
       setLoadingInput((loadingInput) => ({
         ...loadingInput,
         [LEGAL_PRIVACY_POLICY_KEY]: false,
+      }));
+    }
+  };
+  // 通用设置 - RefundPolicy
+  const submitRefundPolicy = async () => {
+    try {
+      setLoadingInput((loadingInput) => ({
+        ...loadingInput,
+        [LEGAL_REFUND_POLICY_KEY]: true,
+      }));
+      await updateOption(
+        LEGAL_REFUND_POLICY_KEY,
+        inputs[LEGAL_REFUND_POLICY_KEY],
+      );
+      showSuccess(t('退款政策已更新'));
+    } catch (error) {
+      console.error(t('退款政策更新失败'), error);
+      showError(t('退款政策更新失败'));
+    } finally {
+      setLoadingInput((loadingInput) => ({
+        ...loadingInput,
+        [LEGAL_REFUND_POLICY_KEY]: false,
       }));
     }
   };
@@ -465,6 +490,28 @@ const OtherSetting = () => {
                 loading={loadingInput[LEGAL_PRIVACY_POLICY_KEY]}
               >
                 {t('设置隐私政策')}
+              </Button>
+              <LocalizedContentInput
+                label={t('退款政策')}
+                placeholder={t(
+                  '在此输入退款政策内容，支持 Markdown & HTML 代码',
+                )}
+                value={inputs[LEGAL_REFUND_POLICY_KEY]}
+                onChange={(value) =>
+                  setInputs((prev) => ({
+                    ...prev,
+                    [LEGAL_REFUND_POLICY_KEY]: value,
+                  }))
+                }
+                helpText={t(
+                  '填写退款政策内容后，将在页脚展示退款政策链接',
+                )}
+              />
+              <Button
+                onClick={submitRefundPolicy}
+                loading={loadingInput[LEGAL_REFUND_POLICY_KEY]}
+              >
+                {t('设置退款政策')}
               </Button>
             </Form.Section>
           </Card>

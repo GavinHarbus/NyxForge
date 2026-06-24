@@ -16,20 +16,20 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { api } from '@/lib/api'
-import type { LegalDocumentResponse } from './types'
+import { useTranslation } from 'react-i18next'
+import { getRefundPolicy } from './api'
+import { LegalDocument } from './legal-document'
 
-export async function getUserAgreement() {
-  const res = await api.get<LegalDocumentResponse>('/api/user-agreement')
-  return res.data
-}
-
-export async function getPrivacyPolicy() {
-  const res = await api.get<LegalDocumentResponse>('/api/privacy-policy')
-  return res.data
-}
-
-export async function getRefundPolicy() {
-  const res = await api.get<LegalDocumentResponse>('/api/refund-policy')
-  return res.data
+export function RefundPolicy() {
+  const { t } = useTranslation()
+  return (
+    <LegalDocument
+      title={t('Refund Policy')}
+      queryKey='refund-policy'
+      fetchDocument={getRefundPolicy}
+      emptyMessage={t(
+        'The administrator has not configured a refund policy yet.'
+      )}
+    />
+  )
 }

@@ -75,9 +75,9 @@ function FooterLinkItem(props: { link: FooterLink }) {
   )
 }
 
-// Renders User Agreement / Privacy Policy links inline with the parent's
-// copyright row when either is configured in System Settings → Site. Emits
-// fragmented siblings so the parent flex container's gap controls spacing.
+// Renders User Agreement / Privacy Policy / Refund Policy links inline with
+// the parent's copyright row when any is configured in System Settings → Site.
+// Emits fragmented siblings so the parent flex container's gap controls spacing.
 function LegalLinks(props: { leadingSeparator?: boolean }) {
   const { t } = useTranslation()
   const { status } = useStatus()
@@ -94,6 +94,13 @@ function LegalLinks(props: { leadingSeparator?: boolean }) {
       key: 'privacy-policy',
       label: t('Privacy Policy'),
       href: '/privacy-policy',
+    })
+  }
+  if (status?.refund_policy_enabled) {
+    items.push({
+      key: 'refund-policy',
+      label: t('Refund Policy'),
+      href: '/refund-policy',
     })
   }
   if (items.length === 0) {
