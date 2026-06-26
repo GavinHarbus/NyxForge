@@ -66,6 +66,7 @@ const _systemInfoSchema = z.object({
     user_agreement: z.string().optional(),
     privacy_policy: z.string().optional(),
     refund_policy: z.string().optional(),
+    acceptable_use: z.string().optional(),
   }),
 })
 
@@ -99,6 +100,7 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
       user_agreement: normalizeValue(defaultValues.legal?.user_agreement),
       privacy_policy: normalizeValue(defaultValues.legal?.privacy_policy),
       refund_policy: normalizeValue(defaultValues.legal?.refund_policy),
+      acceptable_use: normalizeValue(defaultValues.legal?.acceptable_use),
     },
   }
 
@@ -118,6 +120,7 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
       user_agreement: z.string().optional(),
       privacy_policy: z.string().optional(),
       refund_policy: z.string().optional(),
+      acceptable_use: z.string().optional(),
     }),
   })
 
@@ -406,6 +409,32 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
                     <FormDescription>
                       {t(
                         'Leave empty to hide the refund policy page. Supports Markdown, HTML, or a full URL to redirect users.'
+                      )}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='legal.acceptable_use'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('Acceptable Use Policy')}</FormLabel>
+                    <FormControl>
+                      <LocalizedTextarea
+                        placeholder={t(
+                          'Provide Markdown, HTML, or an external URL for the acceptable use policy'
+                        )}
+                        rows={6}
+                        value={field.value ?? ''}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      {t(
+                        'Leave empty to hide the acceptable use policy page. Supports Markdown, HTML, or a full URL to redirect users.'
                       )}
                     </FormDescription>
                     <FormMessage />

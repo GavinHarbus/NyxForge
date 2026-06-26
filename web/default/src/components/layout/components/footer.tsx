@@ -103,6 +103,13 @@ function LegalLinks(props: { leadingSeparator?: boolean }) {
       href: '/refund-policy',
     })
   }
+  if (status?.acceptable_use_enabled) {
+    items.push({
+      key: 'acceptable-use',
+      label: t('Acceptable Use Policy'),
+      href: '/acceptable-use',
+    })
+  }
   if (items.length === 0) {
     return null
   }

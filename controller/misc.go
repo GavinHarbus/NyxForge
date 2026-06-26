@@ -120,6 +120,7 @@ func GetStatus(c *gin.Context) {
 		"user_agreement_enabled":      legalSetting.UserAgreement != "",
 		"privacy_policy_enabled":      legalSetting.PrivacyPolicy != "",
 		"refund_policy_enabled":       legalSetting.RefundPolicy != "",
+		"acceptable_use_enabled":      legalSetting.AcceptableUse != "",
 		"checkin_enabled":             operation_setting.GetCheckinSetting().Enabled,
 	}
 
@@ -215,6 +216,15 @@ func GetRefundPolicy(c *gin.Context) {
 		"success": true,
 		"message": "",
 		"data":    system_setting.GetLegalSettings().RefundPolicy,
+	})
+	return
+}
+
+func GetAcceptableUse(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    system_setting.GetLegalSettings().AcceptableUse,
 	})
 	return
 }

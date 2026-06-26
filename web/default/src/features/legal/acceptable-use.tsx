@@ -16,7 +16,20 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-export { UserAgreement } from './user-agreement'
-export { PrivacyPolicy } from './privacy-policy'
-export { RefundPolicy } from './refund-policy'
-export { AcceptableUse } from './acceptable-use'
+import { useTranslation } from 'react-i18next'
+import { getAcceptableUse } from './api'
+import { LegalDocument } from './legal-document'
+
+export function AcceptableUse() {
+  const { t } = useTranslation()
+  return (
+    <LegalDocument
+      title={t('Acceptable Use Policy')}
+      queryKey='acceptable-use'
+      fetchDocument={getAcceptableUse}
+      emptyMessage={t(
+        'The administrator has not configured an acceptable use policy yet.'
+      )}
+    />
+  )
+}

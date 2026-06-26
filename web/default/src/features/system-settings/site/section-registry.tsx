@@ -49,6 +49,7 @@ const SITE_SECTIONS = [
             user_agreement: settings['legal.user_agreement'],
             privacy_policy: settings['legal.privacy_policy'],
             refund_policy: settings['legal.refund_policy'],
+            acceptable_use: settings['legal.acceptable_use'],
           },
         }}
       />

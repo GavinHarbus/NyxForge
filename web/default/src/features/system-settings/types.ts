@@ -112,6 +112,7 @@ export type SiteSettings = {
   'legal.user_agreement': string
   'legal.privacy_policy': string
   'legal.refund_policy': string
+  'legal.acceptable_use': string
   HeaderNavModules: string
   SidebarModulesAdmin: string
 }
