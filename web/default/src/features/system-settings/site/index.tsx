@@ -33,6 +33,7 @@ const defaultSiteSettings: SiteSettings = {
   About: '',
   HomePageContent: '',
   ServerAddress: '',
+  ApiBaseUrl: '',
   'legal.user_agreement': '',
   'legal.privacy_policy': '',
   'legal.refund_policy': '',

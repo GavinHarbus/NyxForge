@@ -447,6 +447,9 @@ function CodeSamplesSection(props: {
 
   const baseUrl = useMemo(() => {
     const candidate =
+      (status as Record<string, unknown> | null)?.api_base_url ??
+      (status as Record<string, unknown> | null)?.apiBaseUrl ??
+      (status?.data as Record<string, unknown> | undefined)?.api_base_url ??
       (status as Record<string, unknown> | null)?.server_address ??
       (status as Record<string, unknown> | null)?.serverAddress ??
       (status?.data as Record<string, unknown> | undefined)?.server_address ??

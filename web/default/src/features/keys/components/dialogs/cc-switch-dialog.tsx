@@ -57,6 +57,7 @@ function getServerAddress(): string {
     const raw = localStorage.getItem('status')
     if (raw) {
       const status = JSON.parse(raw)
+      if (status.api_base_url) return status.api_base_url
       if (status.server_address) return status.server_address
     }
   } catch {

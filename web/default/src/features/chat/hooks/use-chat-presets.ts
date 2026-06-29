@@ -39,6 +39,15 @@ function getStoredStatusChats(): RawChatConfig {
 
 function extractServerAddress(status: SystemStatus | null) {
   const fromStatus =
+    ((status as Record<string, unknown> | null)?.api_base_url as
+      | string
+      | undefined) ??
+    ((status as Record<string, unknown> | null)?.apiBaseUrl as
+      | string
+      | undefined) ??
+    ((status?.data as Record<string, unknown> | undefined)?.api_base_url as
+      | string
+      | undefined) ??
     (status?.server_address as string | undefined) ??
     (status?.serverAddress as string | undefined) ??
     status?.data?.server_address ??
