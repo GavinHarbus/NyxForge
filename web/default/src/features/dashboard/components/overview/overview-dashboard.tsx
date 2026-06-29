@@ -46,6 +46,7 @@ import { MOTION_TRANSITION } from '@/lib/motion'
 import { ROLE } from '@/lib/roles'
 import { cn } from '@/lib/utils'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
+import { useStatus } from '@/hooks/use-status'
 import { Button } from '@/components/ui/button'
 import {
   CardStaggerContainer,
@@ -456,6 +457,7 @@ export function OverviewDashboard() {
   const { t } = useTranslation()
   const user = useAuthStore((state) => state.auth.user)
   const { items: apiInfoItems } = useApiInfo()
+  const { status } = useStatus()
   const {
     apiInfo: showApiInfoPanel,
     announcements: showAnnouncementsPanel,
@@ -579,7 +581,11 @@ export function OverviewDashboard() {
   )
 
   const requestExample = useMemo<RequestExample>(() => {
-    const endpoint = normalizeEndpoint(apiInfoItems[0]?.url)
+    const endpoint = normalizeEndpoint(
+      (status?.api_base_url as string | undefined) ??
+        apiInfoItems[0]?.url ??
+        (status?.server_address as string | undefined)
+    )
     const model = modelsQuery.data?.[0] ?? 'gpt-4o-mini'
     const keyName = preferredKey?.name ?? t('No API key yet')
     const ready = Boolean(preferredKey?.id && model)
@@ -594,7 +600,7 @@ export function OverviewDashboard() {
         : 'sk-...',
       ready,
     }
-  }, [apiInfoItems, modelsQuery.data, preferredKey, t])
+  }, [apiInfoItems, modelsQuery.data, preferredKey, status, t])
 
   const completedStepCount = startSteps.filter((step) => step.completed).length
   const setupComplete = completedStepCount === startSteps.length
